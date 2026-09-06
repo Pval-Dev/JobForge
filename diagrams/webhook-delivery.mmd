@@ -1,0 +1,8 @@
+flowchart LR
+    User[Authenticated User] --> Register[Register webhook]
+    Register --> DB[(Webhook registration)]
+    User --> Test[POST /webhooks/id/test]
+    Test --> Service[WebhookService]
+    Service --> HTTP[IHttpClientFactory]
+    HTTP --> External[External HTTP endpoint]
+    External --> Response[2xx required]

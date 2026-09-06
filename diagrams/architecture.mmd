@@ -1,0 +1,17 @@
+flowchart LR
+    Client[HTTP Client] --> API[Minimal API]
+    API --> Auth[JWT / RBAC]
+    API --> Services[Application Services]
+    Services --> DB[(PostgreSQL)]
+    WorkerBG[WorkerBackgroundService] --> Claim[JobClaimService]
+    Claim -->|FOR UPDATE SKIP LOCKED| DB
+    Claim --> Processor[JobProcessor]
+    Processor --> Executor[JobExecutor]
+    Executor --> Handlers[JobHandlers]
+    Processor --> Retry[RetryService]
+    SchedulerBG[SchedulerBackgroundService] --> Scheduler[SchedulerService]
+    Scheduler --> DB
+    Retry --> Scheduler
+    Services --> Audit[AuditService]
+    Audit --> DB
+    Metrics[MetricsService] --> DB

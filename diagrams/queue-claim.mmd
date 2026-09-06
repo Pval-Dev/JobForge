@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant W1 as Worker 1
+    participant W2 as Worker 2
+    participant DB as PostgreSQL
+    W1->>DB: BEGIN + SELECT ... FOR UPDATE SKIP LOCKED
+    W2->>DB: BEGIN + SELECT ... FOR UPDATE SKIP LOCKED
+    DB-->>W1: Job A locked
+    DB-->>W2: Job B (Job A skipped)
+    W1->>DB: Job A -> Running + COMMIT
+    W2->>DB: Job B -> Running + COMMIT

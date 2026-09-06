@@ -1,0 +1,76 @@
+@host = http://localhost:5177
+@adminPassword = YOUR_ADMIN_PASSWORD
+
+### 1. Login as bootstrap administrator
+# @name adminLogin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "JobForgeAdmin",
+  "password": "{{adminPassword}}"
+}
+
+### 2. Create a runtime worker (Admin only)
+# @name createWorker
+POST {{host}}/workers
+Authorization: Bearer {{adminLogin.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Worker-01"
+}
+
+### 3. Register a normal user
+# @name userRegister
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "portfolio-user-01",
+  "password": "ExamplePassword123!"
+}
+
+### 4. Current user profile
+GET {{host}}/users/me
+Authorization: Bearer {{userRegister.response.body.$.accessToken}}
+
+### 5. Create an ECHO job
+# @name echoJob
+POST {{host}}/jobs
+Authorization: Bearer {{userRegister.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "code": "ECHO",
+  "name": "Portfolio E2E Job",
+  "payload": "{\"message\":\"Hello from JobForge\"}",
+  "priority": 1
+}
+
+### 6. Queue the ECHO job
+POST {{host}}/jobs/{{echoJob.response.body.$.id}}/queue
+Authorization: Bearer {{userRegister.response.body.$.accessToken}}
+
+### 7. Read the job after the worker processes it
+GET {{host}}/jobs/{{echoJob.response.body.$.id}}
+Authorization: Bearer {{userRegister.response.body.$.accessToken}}
+
+### 8. Job metrics (Admin only)
+GET {{host}}/metrics/jobs
+Authorization: Bearer {{adminLogin.response.body.$.accessToken}}
+
+### 9. Worker metrics (Admin only)
+GET {{host}}/metrics/workers
+Authorization: Bearer {{adminLogin.response.body.$.accessToken}}
+
+### 10. Audit trail for the ECHO job (Admin only)
+GET {{host}}/audit/entity/{{echoJob.response.body.$.id}}
+Authorization: Bearer {{adminLogin.response.body.$.accessToken}}
+
+### 11. Authorization check: normal user on an Admin endpoint (expect 403)
+GET {{host}}/metrics/jobs
+Authorization: Bearer {{userRegister.response.body.$.accessToken}}
+
+### 12. Authentication check: missing JWT (expect 401)
+GET {{host}}/users/me

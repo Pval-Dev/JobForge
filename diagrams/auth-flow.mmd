@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Client
+    participant API
+    participant Auth as JwtBearer / Authorization
+    participant Service as Application Service
+    Client->>API: Request + Bearer token
+    API->>Auth: Validate signature / issuer / audience / lifetime
+    Auth-->>API: ClaimsPrincipal
+    API->>API: Role / ownership checks
+    API->>Service: Execute authorized use case
+    Service-->>API: Result
+    API-->>Client: HTTP response

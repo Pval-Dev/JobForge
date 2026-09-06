@@ -1,0 +1,12 @@
+flowchart TD
+    Failure[Handler returns failure] --> Attempts[Count persisted retry attempts]
+    Attempts --> Budget{Retry budget available?}
+    Budget -- No --> Failed[Persist Failed]
+    Budget -- Yes --> Backoff[Calculate exponential backoff]
+    Backoff --> Retrying[Job -> Retrying]
+    Retrying --> Attempt[Persist RetryAttempt]
+    Attempt --> Schedule[Persist retry Schedule]
+    Schedule --> Poll[SchedulerBackgroundService polls]
+    Poll --> Due{RunAt due?}
+    Due -- Yes --> Queue[Job -> Queued]
+    Queue --> Worker[Worker claims again]

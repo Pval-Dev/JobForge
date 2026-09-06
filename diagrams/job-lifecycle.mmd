@@ -1,0 +1,14 @@
+stateDiagram-v2
+    [*] --> Created
+    Created --> Scheduled
+    Created --> Queued
+    Scheduled --> Queued
+    Queued --> Running
+    Running --> Succeeded
+    Running --> Retrying
+    Retrying --> Queued
+    Running --> Failed
+    Created --> Cancelled
+    Scheduled --> Cancelled
+    Queued --> Cancelled
+    Retrying --> Cancelled

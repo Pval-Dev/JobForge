@@ -1,0 +1,9 @@
+flowchart TD
+    Crash[Process exits during execution] --> Persisted[Job remains Running in PostgreSQL]
+    Restart[Application restarts] --> Recovery[JobRecoveryService]
+    Persisted --> Recovery
+    Recovery --> Retry[RetryService]
+    Retry --> Budget{Retry budget?}
+    Budget -- Yes --> Schedule[Persist retry schedule]
+    Budget -- No --> Failed[Persist Failed]
+    Schedule --> Queue[Scheduler eventually requeues]
